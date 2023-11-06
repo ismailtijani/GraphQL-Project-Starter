@@ -36,6 +36,7 @@ class Bootstrap {
   }
 
   private async apolloServer() {
+    // build TypeGraphQL executable schema
     const schema = await buildSchema({
       resolvers: [
         Home,
@@ -51,6 +52,7 @@ class Bootstrap {
       // resolvers: [__dirname + "../{queries, resolvers}/**/*.ts"],
     });
 
+    // Create GraphQL server
     this.server = new ApolloServer({
       schema,
       plugins: [ApolloServerPluginDrainHttpServer({ httpServer: this.httpServer })],
@@ -58,6 +60,7 @@ class Bootstrap {
       includeStacktraceInErrorResponses: true,
       formatError: customError,
     });
+
     // Start the Apollo Server
     await this.server.start();
     this.expressConfig();
@@ -89,6 +92,7 @@ class Bootstrap {
       expressMiddleware(this.server, { context: async ({ req, res }) => ({ req, res }) })
     );
   }
+  // create mongoose connection
   private async mongoSetup() {
     try {
       await mongoose.set("strictQuery", false).connect(Environment.getDbName());

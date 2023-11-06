@@ -1,6 +1,6 @@
 import { Resolver, Mutation, Arg } from "type-graphql";
 import userService from "../../services/user";
-import { ResetPasswordInputs } from "../../library/typeDef";
+import { ResetPasswordInputs } from "../../entities/userManager/typeDef";
 
 @Resolver()
 export default class ResetPassword {

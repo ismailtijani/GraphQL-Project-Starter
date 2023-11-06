@@ -1,5 +1,5 @@
 import { Arg, Ctx, Mutation, Resolver } from "type-graphql";
-import { LoginInput, MyContext, UserType } from "../../library/typeDef";
+import { LoginInput, MyContext, UserType } from "../../entities/userManager/typeDef";
 import userService from "../../services/user";
 
 @Resolver()

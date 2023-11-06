@@ -1,36 +1,7 @@
 import { IsEmail, Length, MinLength } from "class-validator";
 import { Request, Response } from "express";
-import { Types } from "mongoose";
-import { Field, FieldResolver, ID, InputType, Int, ObjectType, Root } from "type-graphql";
-
-@ObjectType()
-export class UserType {
-  @Field(() => ID)
-  _id: Types.ObjectId;
-
-  @Field({ description: "The first name of the user" })
-  firstName: string;
-
-  @Field()
-  lastName: string;
-
-  // @Field(() => String)
-  // fullName(@Root() parent: UserType): string {
-  //   return `${parent.firstName} ${parent.lastName}`;
-  // }
-
-  @Field()
-  email: string;
-
-  @Field(() => Int, { nullable: true })
-  phoneNumber: string;
-
-  @Field()
-  status: string;
-
-  @Field()
-  password: string;
-}
+import { Field, InputType } from "type-graphql";
+import { User } from "./schema";
 
 @InputType()
 class Password {
@@ -40,7 +11,7 @@ class Password {
 }
 
 @InputType()
-export class SignupInput extends Password implements Partial<UserType> {
+export class SignupInput extends Password implements Partial<User> {
   @Field()
   @Length(3, 30, { message: "First name must be greater then 3 characters" })
   firstName: string;

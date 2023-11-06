@@ -1,9 +1,15 @@
-// import { Schema, model } from "mongoose";
-// import bcrypt from "bcrypt";
-// import crypto from "crypto";
-// import { UserLevelEnum, AccountStatusEnum } from "../../library/enums";
-// import { IUser, IUserMethods, UserDocument, UserModel } from "./interface";
-// import { GraphQLError } from "graphql";
+// import mongoose, { Schema, model } from "mongoose";
+import { getModelForClass, mongoose, prop } from "@typegoose/typegoose";
+import bcrypt from "bcrypt";
+import crypto from "crypto";
+import { UserLevelEnum, AccountStatusEnum } from "../../library/enums";
+import { IUser, IUserMethods, UserDocument, UserModel } from "./interface";
+import { GraphQLError } from "graphql";
+
+class userClass {
+  @prop()
+  public firstName: string;
+}
 
 // const userSchema = new Schema<IUser, UserModel, IUserMethods>(
 //   {
