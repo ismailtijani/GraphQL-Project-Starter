@@ -1,4 +1,4 @@
-import { Prop, getModelForClass, prop } from "@typegoose/typegoose";
+import { getModelForClass, prop } from "@typegoose/typegoose";
 import { Types } from "mongoose";
 import { Field, ID, ObjectType, Int, Root } from "type-graphql";
 import { AccountStatusEnum, UserLevelEnum } from "../../library/enums";
