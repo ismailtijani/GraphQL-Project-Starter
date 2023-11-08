@@ -26,7 +26,7 @@ export class User {
 
   // Email
   @Field()
-  @prop({ required: true, unique: true, trim: true, lowercase: true })
+  @prop({ required: [true, "Email is required"], unique: true, trim: true, lowercase: true })
   public email: string;
 
   // PhoneNumber
@@ -49,7 +49,7 @@ export class User {
   userLevel: string;
 
   // Password
-  @prop({ required: true })
+  @prop({ required: [true, "Password is required"] })
   password: string;
 
   @prop()
