@@ -1,8 +1,16 @@
-import { getModelForClass, prop } from "@typegoose/typegoose";
+import { getModelForClass, pre, prop } from "@typegoose/typegoose";
 import { Types } from "mongoose";
+import bcrypt from "bcrypt";
 import { Field, ID, ObjectType, Int, Root } from "type-graphql";
 import { AccountStatusEnum, UserLevelEnum } from "../../library/enums";
 
+//Hashing User plain text password before saving
+@pre<User>("save", async function (next) {
+  if (this.isModified("password")) {
+    this.password = await bcrypt.hash(this.password, 8);
+    next();
+  }
+})
 @ObjectType()
 export class User {
   @Field(() => ID)
