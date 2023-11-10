@@ -1,41 +1,44 @@
-import { getModelForClass, pre, prop } from "@typegoose/typegoose";
+import { DocumentType, ReturnModelType, getModelForClass, pre, prop } from "@typegoose/typegoose";
 import { Types } from "mongoose";
 import bcrypt from "bcrypt";
 import { Field, ID, ObjectType, Int, Root } from "type-graphql";
 import { AccountStatusEnum, UserLevelEnum } from "../../library/enums";
+import { GraphQLError } from "graphql";
+import crypto from "crypto";
 
 //Hashing User plain text password before saving
-@pre<User>("save", async function (next) {
+@pre<UserClass>("save", async function (next) {
   if (this.isModified("password")) {
     this.password = await bcrypt.hash(this.password, 8);
     next();
   }
 })
+//User Calls declaring TypeGraphQL, Typpegoose and Typescript interface
 @ObjectType()
-export class User {
+export class UserClass {
   @Field(() => ID)
   readonly _id: Types.ObjectId;
 
   // FirstName
   @Field({ description: "The first name of the user" })
   @prop({ required: [true, "First name must be provided"], trim: true })
-  public firstName: string;
+  public firstName!: string;
 
   // LastName
   @Field()
   @prop({ required: [true, "Last name must be provided"], trim: true })
-  public lastName: string;
+  public lastName!: string;
 
   // FullName
   @Field(() => String)
-  fullName(@Root() parent: User): string {
+  public fullName(@Root() parent: UserClass): string {
     return `${parent.firstName} ${parent.lastName}`;
   }
 
   // Email
   @Field()
   @prop({ required: [true, "Email is required"], unique: true, trim: true, lowercase: true })
-  public email: string;
+  public email!: string;
 
   // PhoneNumber
   @Field(() => Int, { nullable: true })
@@ -49,25 +52,78 @@ export class User {
     enum: Object.values(AccountStatusEnum),
     default: AccountStatusEnum.PENDING,
   })
-  public status: string;
+  public status?: AccountStatusEnum;
 
   // Role
   @Field()
   @prop({ type: String, enum: Object.values(UserLevelEnum), default: UserLevelEnum.isUser })
-  userLevel: string;
+  userLevel?: UserLevelEnum;
 
   // Password
-  @prop({ required: [true, "Password is required"] })
+  @prop({ required: [true, "Password is required"], select: false })
   password: string;
 
-  @prop()
-  confirmationCode: String;
+  //Confrimation Code
+  @prop({ type: String, select: false })
+  confirmationCode: string | null;
 
-  @prop()
-  resetPasswordToken: String;
+  // Reset Password Token
+  @prop({ select: false })
+  resetPasswordToken?: string;
 
-  @prop()
-  resetPasswordExpire: Date;
+  // Reset Password Expirying Date
+  @prop({ select: false })
+  resetPasswordExpire?: number;
+
+  // Generate and hash password token (Instance Method)
+  public async generateResetPasswordToken(this: DocumentType<UserClass>) {
+    // Generate token
+    const resetToken = crypto.randomBytes(20).toString("hex");
+    // Hash token and send to resetPassword token field
+    this.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    // Set expire
+    this.resetPasswordExpire = Date.now() + 30 * 60 * 1000;
+    await this.save();
+    return resetToken;
+  }
+
+  //Login User Authentication (Static Method)
+  public static async findByCredentials(
+    this: ReturnModelType<typeof UserClass>,
+    email: string,
+    password: string
+  ) {
+    try {
+      const user = await UserModel.findOne({ email });
+      if (!user) {
+        //Change to new Error for separation of concerns
+        throw new GraphQLError("No Account with this credentials, kindly signup", {
+          extensions: { code: 400 },
+        });
+      } else if (user && user.status !== AccountStatusEnum.ACTIVATED)
+        throw new GraphQLError(
+          "Account not activated, kindly check your mail for activation link",
+          {
+            extensions: { code: 400 },
+          }
+        );
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch)
+        throw new GraphQLError("Email or Password is incorrect", { extensions: { code: 400 } });
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
-export const UserModel = getModelForClass(User);
+//Removing sensitive datas from the user
+// User.prototype.toJSON = function () {
+//   const userObject = this.toObject();
+//   delete userObject.password;
+//   delete userObject.confirmationCode;
+//   return userObject;
+// };
+
+const UserModel = getModelForClass(UserClass, { schemaOptions: { timestamps: true } });
+export { UserModel as User };
