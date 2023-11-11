@@ -7,7 +7,7 @@ import { GraphQLError } from "graphql";
 import crypto from "crypto";
 
 //Hashing User plain text password before saving
-@pre<UserClass>("save", async function (next) {
+@pre<Users>("save", async function (next) {
   if (this.isModified("password")) {
     this.password = await bcrypt.hash(this.password, 8);
     next();
@@ -15,7 +15,7 @@ import crypto from "crypto";
 })
 //User Calls declaring TypeGraphQL, Typpegoose and Typescript interface
 @ObjectType()
-export class UserClass {
+export class Users {
   @Field(() => ID)
   readonly _id: Types.ObjectId;
 
@@ -30,8 +30,9 @@ export class UserClass {
   public lastName!: string;
 
   // FullName
-  @Field(() => String)
-  public fullName(@Root() parent: UserClass): string {
+  @Field()
+  public fullName(@Root() parent: Users): string {
+    console.log(parent.firstName); //Returning undefined, check it out later
     return `${parent.firstName} ${parent.lastName}`;
   }
 
@@ -60,7 +61,7 @@ export class UserClass {
   userLevel?: UserLevelEnum;
 
   // Password
-  @prop({ required: [true, "Password is required"], select: false })
+  @prop({ required: [true, "Password is required"] })
   password: string;
 
   //Confrimation Code
@@ -76,7 +77,7 @@ export class UserClass {
   resetPasswordExpire?: number;
 
   // Generate and hash password token (Instance Method)
-  public async generateResetPasswordToken(this: DocumentType<UserClass>) {
+  public async generateResetPasswordToken(this: DocumentType<Users>) {
     // Generate token
     const resetToken = crypto.randomBytes(20).toString("hex");
     // Hash token and send to resetPassword token field
@@ -89,7 +90,7 @@ export class UserClass {
 
   //Login User Authentication (Static Method)
   public static async findByCredentials(
-    this: ReturnModelType<typeof UserClass>,
+    this: ReturnModelType<typeof Users>,
     email: string,
     password: string
   ) {
@@ -97,7 +98,7 @@ export class UserClass {
       const user = await UserModel.findOne({ email });
       if (!user) {
         //Change to new Error for separation of concerns
-        throw new GraphQLError("No Account with this credentials, kindly signup", {
+        throw new GraphQLError("Invalid Email or Password", {
           extensions: { code: 400 },
         });
       } else if (user && user.status !== AccountStatusEnum.ACTIVATED)
@@ -125,5 +126,5 @@ export class UserClass {
 //   return userObject;
 // };
 
-const UserModel = getModelForClass(UserClass, { schemaOptions: { timestamps: true } });
+const UserModel = getModelForClass(Users, { schemaOptions: { timestamps: true } });
 export { UserModel as User };

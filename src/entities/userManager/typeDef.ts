@@ -1,7 +1,7 @@
 import { IsEmail, Length, MinLength } from "class-validator";
 import { Request, Response } from "express";
 import { Field, InputType } from "type-graphql";
-import { UserClass } from "./schema";
+import { Users } from "./schema";
 
 @InputType()
 class Password {
@@ -11,7 +11,7 @@ class Password {
 }
 
 @InputType()
-export class SignupInput extends Password implements Partial<UserClass> {
+export class SignupInput extends Password implements Partial<Users> {
   @Field()
   @Length(3, 30, { message: "First name must be greater then 3 characters" })
   firstName: string;
