@@ -15,17 +15,6 @@ export default class userService {
   ) => {
     try {
       const confirmationCode = crypto.randomBytes(20).toString("hex");
-      //Check if there is a registered account with the email
-      // const existingUser = await User.findOne({ email }).lean();
-
-      // if (existingUser && existingUser.status === AccountStatusEnum.PENDING) {
-      //   throw new ApolloError(
-      //     "An Account Already Exist with this details, kindly verify your account"
-      //   );
-      // } else if (existingUser && existingUser.status === AccountStatusEnum.ACTIVATED) {
-      //   throw new ApolloError("User alredy exist, Kindly login");
-      // }
-      //Create User account
       const user = await User.create({
         firstName,
         lastName,
@@ -34,12 +23,9 @@ export default class userService {
         password,
         confirmationCode,
       });
-      // if (!user) throw new Error("Signup failed, try again");
-      if (!user) throw new GraphQLError("Signup failed, try again", { extensions: { code: 400 } });
-      //Generate auth token
 
-      // user.confirmationCode = token;
-      // await user.save();
+      if (!user) throw new GraphQLError("Signup failed, try again", { extensions: { code: 400 } });
+
       // Send Confirmation Message to new user
       await MailService.sendAccountActivationCode({ email, token: confirmationCode });
       return "Account created successfuly!";
