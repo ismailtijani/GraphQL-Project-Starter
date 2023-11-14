@@ -22,6 +22,8 @@ import Home from "../resolvers/queries/homepage";
 import Profile from "../resolvers/queries/profile";
 import customError from "../library/errorHandler";
 import Environment from "../environment";
+import graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.mjs";
+import { AddProfilePicture } from "../resolvers/mutations/avatar";
 class Bootstrap {
   public app: Application;
   public server: ApolloServer;
@@ -41,12 +43,13 @@ class Bootstrap {
       resolvers: [
         Home,
         Signup,
+        AccountConfrimation,
         Login,
         Profile,
+        AddProfilePicture,
         Logout,
         ResetPassword,
         ForgetPassword,
-        AccountConfrimation,
       ],
       validate: true,
       // resolvers: [__dirname + "../{queries, resolvers}/**/*.ts"],
@@ -59,6 +62,7 @@ class Bootstrap {
       status400ForVariableCoercionErrors: true, //It's not working, the status is still 200
       includeStacktraceInErrorResponses: true,
       formatError: customError,
+      csrfPrevention: true,
     });
 
     // Start the Apollo Server
@@ -81,6 +85,7 @@ class Bootstrap {
         },
       })
     );
+
     this.app.use(
       "/",
       express.json(),
@@ -88,6 +93,7 @@ class Bootstrap {
         origin: ["http://localhost:3000"],
         credentials: true,
       }),
+      graphqlUploadExpress({ maxFileSize: 1000000, maxFiles: 10 }),
       // Apply middleware to integrate Apollo Server with Express
       expressMiddleware(this.server, { context: async ({ req, res }) => ({ req, res }) })
     );

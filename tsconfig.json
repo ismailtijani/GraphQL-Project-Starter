@@ -13,8 +13,11 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "strictPropertyInitialization": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "allowJs": true,
+    "maxNodeModuleJsDepth": 10,
+    "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/server.mjs"],
   "exclude": ["node_modules"]
 }
