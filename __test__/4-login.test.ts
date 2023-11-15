@@ -18,8 +18,6 @@ describe("Login", () => {
     try {
       const response = await request(app).post("/graphql").send({ query: login }).expect(200);
       const data = response.body.data;
-      // console.log(response.body.errors);
-      // console.log(data);
       expect(data.user).toBeTruthy();
       // expect(response).toHaveProperty("data");
       // expect(response.body.errors).toBeFalsy();
