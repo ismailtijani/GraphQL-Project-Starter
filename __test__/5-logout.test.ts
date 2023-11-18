@@ -16,6 +16,5 @@ describe("Logout Resolver", () => {
 
     expect(response.status).toBe(200);
     expect(response.body.data.logout).toBeDefined();
-    // Add more assertions as needed
   });
 });

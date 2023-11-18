@@ -16,6 +16,5 @@ describe("Forget Password Resolver", () => {
 
     expect(response.status).toBe(200);
     expect(response.body.data.forgetPassword).toBeDefined();
-    // Add more assertions as needed
   });
 });
