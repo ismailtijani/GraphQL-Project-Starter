@@ -30,11 +30,11 @@ export class Users {
   public lastName!: string;
 
   // FullName
-  @Field()
-  public fullName(@Root() parent: Users): string {
-    console.log(parent.firstName); //Returning undefined, check it out later
-    return `${parent.firstName} ${parent.lastName}`;
-  }
+  // @Field()
+  // public fullName(@Root() parent: Users): string {
+  //   console.log(parent.firstName); //Returning undefined, check it out later
+  //   return `${parent.firstName} ${parent.lastName}`;
+  // }
 
   // Email
   @Field()
